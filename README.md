@@ -108,4 +108,4 @@ npm run lint     # Run ESLint
 
 ## License
 
-MIT
+Apache-2.0
