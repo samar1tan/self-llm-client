@@ -1,0 +1,7 @@
+interface:
+  display_name: "SDD-RIPER ONE"
+  short_description: "按 SDD-RIPER 协议执行研发任务（支持项目级CodeMap与全模态Context）"
+  default_prompt: "Use $sdd-riper-one in strict SDD-RIPER mode. Treat create_codemap/build_context_bundle as Pre-Research utilities, treat sdd_bootstrap as the RIPER start command (enters the first Research step while closing Pre-Research), optionally run review_spec after Plan for stage-aware advisory GO/NO-GO readiness check (non-blocking), use review_execute after Execute for mandatory three-axis review (spec quality/completion, spec-code fidelity, code intrinsic quality), and use archive at closure to distill human/llm knowledge docs with source traceability. Then run RIPER from Research to Review (Innovate optional for small tasks) and keep spec/code in sync."
+
+policy:
+  allow_implicit_invocation: false
