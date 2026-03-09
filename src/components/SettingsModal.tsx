@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, Sun, Moon, Monitor, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Sun, Moon, Monitor, RefreshCw, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import { useSettingsStore } from '../stores/settingsStore';
 import { useChatStore } from '../stores/chatStore';
+import { useMonitorStore } from '../stores/monitorStore';
 import { fetchModels, checkEndpointHealth } from '../services/api';
+import { checkMonitorHealth } from '../services/monitor';
 import { Model } from '../types';
 
 interface SettingsModalProps {
@@ -13,12 +15,14 @@ interface SettingsModalProps {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { settings, setSettings } = useSettingsStore();
   const { activeChatId, updateChatSystemPrompt, chats } = useChatStore();
+  const { settings: monitorSettings, setSettings: setMonitorSettings } = useMonitorStore();
 
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(false);
   const [endpointStatus, setEndpointStatus] = useState<'unknown' | 'healthy' | 'error'>(
     'unknown'
   );
+  const [monitorStatus, setMonitorStatus] = useState<'unknown' | 'healthy' | 'error'>('unknown');
   const [systemPrompt, setSystemPrompt] = useState('');
 
   const activeChat = chats.find((c) => c.id === activeChatId);
@@ -253,6 +257,93 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 System
               </button>
             </div>
+          </div>
+
+          {/* GPU Monitor */}
+          <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Activity size={18} className="text-zinc-500" />
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  GPU Monitor
+                </label>
+              </div>
+              <button
+                onClick={() => setMonitorSettings({ enabled: !monitorSettings.enabled })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  monitorSettings.enabled ? 'bg-blue-500' : 'bg-zinc-300 dark:bg-zinc-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    monitorSettings.enabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {monitorSettings.enabled && (
+              <div className="space-y-4">
+                {/* Monitor Endpoint */}
+                <div>
+                  <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
+                    Monitor Server Endpoint
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={monitorSettings.endpoint}
+                        onChange={(e) => setMonitorSettings({ endpoint: e.target.value })}
+                        placeholder="http://localhost:5678"
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {monitorStatus === 'healthy' && (
+                          <CheckCircle2 size={16} className="text-green-500" />
+                        )}
+                        {monitorStatus === 'error' && (
+                          <XCircle size={16} className="text-red-500" />
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        setMonitorStatus('unknown');
+                        const healthy = await checkMonitorHealth(monitorSettings.endpoint);
+                        setMonitorStatus(healthy ? 'healthy' : 'error');
+                      }}
+                      className="px-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                    >
+                      <RefreshCw size={16} />
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Run: python3 tools/gpu-monitor-server.py
+                  </p>
+                </div>
+
+                {/* Polling Interval */}
+                <div>
+                  <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
+                    Polling Interval: {monitorSettings.pollingInterval / 1000}s
+                  </label>
+                  <input
+                    type="range"
+                    min="1000"
+                    max="10000"
+                    step="1000"
+                    value={monitorSettings.pollingInterval}
+                    onChange={(e) => setMonitorSettings({ pollingInterval: parseInt(e.target.value) })}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-zinc-500 mt-1">
+                    <span>1s</span>
+                    <span>10s</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -59,3 +59,36 @@ export interface ApiError {
   message: string;
   code?: string;
 }
+
+// GPU Monitoring Types
+export interface GpuMetrics {
+  deviceName: string;
+  pci: string;
+  utilization: {
+    gfx: number;      // GPU compute %
+    memory: number;   // Memory controller %
+    media: number;    // Media engine %
+  };
+  vram: {
+    used: number;     // MiB
+    total: number;    // MiB
+  };
+  sensors: {
+    temperature: number;  // Celsius
+    power: number;        // Watts
+    fanSpeed?: number;    // RPM
+  };
+  timestamp: number;
+}
+
+export interface VllmStats {
+  tokensPerSecond?: number;
+  queueDepth?: number;
+  activeRequests?: number;
+}
+
+export interface MonitorSettings {
+  enabled: boolean;
+  endpoint: string;       // GPU monitor server endpoint
+  pollingInterval: number; // milliseconds
+}

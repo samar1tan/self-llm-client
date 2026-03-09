@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { ChatWindow } from './components/ChatWindow';
 import { SettingsModal } from './components/SettingsModal';
+import { StatusBar } from './components/StatusBar';
+import { MonitorPanel } from './components/MonitorPanel';
 import { useSettingsStore } from './stores/settingsStore';
 import { useChatStore } from './stores/chatStore';
 import { AlertCircle, X } from 'lucide-react';
@@ -72,14 +74,22 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen flex bg-white dark:bg-chat-bg-dark text-zinc-900 dark:text-white">
-      <Sidebar onOpenSettings={() => setSettingsOpen(true)} />
-      <ChatWindow onError={handleError} />
+    <div className="h-screen flex flex-col bg-white dark:bg-chat-bg-dark text-zinc-900 dark:text-white">
+      {/* Main content area */}
+      <div className="flex-1 flex min-h-0">
+        <Sidebar onOpenSettings={() => setSettingsOpen(true)} />
+        <ChatWindow onError={handleError} />
+        <MonitorPanel />
+      </div>
+      
+      {/* Status bar at bottom */}
+      <StatusBar />
+      
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       {/* Error Toast */}
       {error && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-3 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg max-w-md animate-in slide-in-from-bottom">
+        <div className="fixed bottom-14 right-4 z-50 flex items-center gap-3 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg max-w-md animate-in slide-in-from-bottom">
           <AlertCircle size={20} />
           <span className="flex-1">{error}</span>
           <button onClick={() => setError(null)} className="p-1 hover:bg-red-600 rounded">
