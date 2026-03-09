@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import { GpuMetrics, VllmStats, MonitorSettings } from '../types';
+import { GpuMetrics, VllmStats, MonitorSettings, MetricHistoryPoint } from '../types';
+
+// History window: 5 minutes at 2s polling = 150 data points
+const MAX_HISTORY_POINTS = 150;
 
 const DEFAULT_MONITOR_SETTINGS: MonitorSettings = {
   enabled: true,
@@ -18,6 +21,9 @@ interface MonitorState {
   connected: boolean;
   error: string | null;
   lastUpdate: number | null;
+  
+  // History for charts
+  history: MetricHistoryPoint[];
 
   // Actions
   setSettings: (settings: Partial<MonitorSettings>) => void;
@@ -75,6 +81,7 @@ export const useMonitorStore = create<MonitorState>((set, get) => ({
   connected: false,
   error: null,
   lastUpdate: null,
+  history: [],
 
   setSettings: (newSettings) => {
     const updated = { ...get().settings, ...newSettings };
@@ -94,11 +101,33 @@ export const useMonitorStore = create<MonitorState>((set, get) => ({
   },
 
   setGpuMetrics: (metrics) => {
+    const now = Date.now();
+    const currentHistory = get().history;
+    
+    // Append new data point to history if we have metrics
+    let newHistory = currentHistory;
+    if (metrics) {
+      const newPoint: MetricHistoryPoint = {
+        timestamp: now,
+        gfx: metrics.utilization.gfx,
+        memory: metrics.utilization.memory,
+        vram: metrics.vram.used,
+        vramTotal: metrics.vram.total,
+        temp: metrics.sensors.temperature,
+        power: metrics.sensors.power,
+        fan: metrics.sensors.fanSpeed,
+      };
+      
+      // Sliding window: keep only last MAX_HISTORY_POINTS
+      newHistory = [...currentHistory, newPoint].slice(-MAX_HISTORY_POINTS);
+    }
+    
     set({ 
       gpu: metrics, 
-      lastUpdate: metrics ? Date.now() : get().lastUpdate,
+      lastUpdate: metrics ? now : get().lastUpdate,
       connected: metrics !== null,
       error: metrics ? null : get().error,
+      history: newHistory,
     });
   },
 
@@ -121,6 +150,7 @@ export const useMonitorStore = create<MonitorState>((set, get) => ({
       connected: false,
       error: null,
       lastUpdate: null,
+      history: [],
     });
   },
 }));

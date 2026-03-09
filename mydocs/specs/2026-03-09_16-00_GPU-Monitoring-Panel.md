@@ -392,6 +392,13 @@ export interface MonitorState {
 - Vite Build: ✅ Production build successful
 - All checklist items completed
 
+### Bug Fixes Applied
+
+| Bug | Root Cause | Fix |
+|-----|-----------|-----|
+| VRAM, temp, power always zero | amdgpu_top JSON field names differ: `"Total VRAM"` not `Total`, `"Edge Temperature"` not `GPU Temperature` | Updated `monitor.ts` parsing to use correct field names |
+| VRAM shows 0.5GB instead of ~100GB | APUs use GTT (system RAM) not dedicated VRAM. Was reading `Total VRAM` (512MB) instead of `Total GTT` (~112GB) | Auto-detect APU (VRAM < 16GB) and use GTT values |
+
 ---
 
 ## §7 Next Actions

@@ -92,3 +92,17 @@ export interface MonitorSettings {
   endpoint: string;       // GPU monitor server endpoint
   pollingInterval: number; // milliseconds
 }
+
+// Metric types for history tracking
+export type MetricType = 'gfx' | 'memory' | 'vram' | 'temp' | 'power' | 'fan';
+
+export interface MetricHistoryPoint {
+  timestamp: number;
+  gfx: number;        // GPU utilization %
+  memory: number;     // Memory controller %
+  vram: number;       // VRAM used in MiB
+  vramTotal: number;  // VRAM total in MiB
+  temp: number;       // Temperature in Celsius
+  power: number;      // Power in Watts
+  fan?: number;       // Fan speed in RPM
+}

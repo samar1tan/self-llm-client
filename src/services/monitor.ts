@@ -28,22 +28,32 @@ export async function fetchGpuMetrics(endpoint: string): Promise<MonitorResponse
       const device = data.devices[0];
       const gpu: GpuMetrics = {
         deviceName: device.Info?.DeviceName || 'Unknown GPU',
-        pci: device.Info?.PCI || 'N/A',
+        pci: device.Info?.PCI || device.Info?.DevicePath?.pci || 'N/A',
         utilization: {
           gfx: device.gpu_activity?.GFX?.value ?? 0,
           memory: device.gpu_activity?.Memory?.value ?? 0,
           media: device.gpu_activity?.MediaEngine?.value ?? 0,
         },
         vram: {
-          used: device.VRAM?.Used?.value ?? 0,
-          total: device.VRAM?.Total?.value ?? 0,
+          // For APUs: GTT (system RAM as GPU memory) is larger and more relevant than dedicated VRAM
+          // For discrete GPUs: VRAM is the main memory
+          // Use GTT if Total VRAM < 16GB (indicates APU), otherwise use VRAM
+          used: (device.VRAM?.['Total VRAM']?.value ?? 0) < 16384
+            ? (device.VRAM?.['Total GTT Usage']?.value ?? device.VRAM?.['Total VRAM Usage']?.value ?? 0)
+            : (device.VRAM?.['Total VRAM Usage']?.value ?? 0),
+          total: (device.VRAM?.['Total VRAM']?.value ?? 0) < 16384
+            ? (device.VRAM?.['Total GTT']?.value ?? device.VRAM?.['Total VRAM']?.value ?? 0)
+            : (device.VRAM?.['Total VRAM']?.value ?? 0),
         },
         sensors: {
-          temperature: device.Sensors?.['GPU Temperature']?.value ?? 
-                       device.Sensors?.['edge']?.value ?? 0,
-          power: device.Sensors?.['GPU Power']?.value ?? 
-                 device.Sensors?.['average']?.value ?? 0,
-          fanSpeed: device.Sensors?.['Fan']?.value ?? undefined,
+          // amdgpu_top uses "Edge Temperature", "Average Power", etc.
+          temperature: device.Sensors?.['Edge Temperature']?.value ?? 
+                       device.Sensors?.['Junction Temperature']?.value ??
+                       device.Sensors?.['GPU Temperature']?.value ?? 0,
+          power: device.Sensors?.['Average Power']?.value ?? 
+                 device.Sensors?.['GFX Power']?.value ??
+                 device.Sensors?.['Input Power']?.value ?? 0,
+          fanSpeed: device.Sensors?.Fan?.value ?? undefined,
         },
         timestamp: Date.now(),
       };

@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { X, Cpu, HardDrive, Thermometer, Zap, Fan, Activity, WifiOff } from 'lucide-react';
 import { useMonitorStore } from '../stores/monitorStore';
+import { ChartPopup } from './ChartPopup';
+import { MetricType } from '../types';
 
 function ProgressBar({ value, max, color = 'blue' }: { value: number; max: number; color?: string }) {
   const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
@@ -31,6 +34,7 @@ function MetricCard({
   progress,
   progressMax,
   progressColor,
+  onClick,
 }: {
   icon: React.ElementType;
   label: string;
@@ -40,9 +44,13 @@ function MetricCard({
   progress?: number;
   progressMax?: number;
   progressColor?: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+    <div 
+      className={`p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg ${onClick ? 'cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center gap-2 mb-2">
         <Icon size={16} className="text-zinc-500 dark:text-zinc-400" />
         <span className="text-sm text-zinc-600 dark:text-zinc-400">{label}</span>
@@ -83,7 +91,8 @@ function getUtilizationColor(util: number): string {
 }
 
 export function MonitorPanel() {
-  const { gpu, connected, error, panelOpen, setPanelOpen, lastUpdate } = useMonitorStore();
+  const { gpu, connected, error, panelOpen, setPanelOpen, lastUpdate, history } = useMonitorStore();
+  const [selectedMetric, setSelectedMetric] = useState<MetricType | null>(null);
 
   if (!panelOpen) {
     return null;
@@ -130,6 +139,7 @@ export function MonitorPanel() {
               progress={gpu.utilization.gfx}
               progressMax={100}
               progressColor={getUtilizationColor(gpu.utilization.gfx)}
+              onClick={() => setSelectedMetric('gfx')}
             />
 
             {/* Memory Controller */}
@@ -142,6 +152,7 @@ export function MonitorPanel() {
                 progress={gpu.utilization.memory}
                 progressMax={100}
                 progressColor="purple"
+                onClick={() => setSelectedMetric('memory')}
               />
             )}
 
@@ -154,6 +165,7 @@ export function MonitorPanel() {
               progress={gpu.vram.used}
               progressMax={gpu.vram.total}
               progressColor={gpu.vram.used / gpu.vram.total > 0.9 ? 'red' : 'blue'}
+              onClick={() => setSelectedMetric('vram')}
             />
 
             {/* Temperature */}
@@ -165,6 +177,7 @@ export function MonitorPanel() {
               progress={gpu.sensors.temperature}
               progressMax={100}
               progressColor={getTemperatureColor(gpu.sensors.temperature)}
+              onClick={() => setSelectedMetric('temp')}
             />
 
             {/* Power */}
@@ -173,6 +186,7 @@ export function MonitorPanel() {
               label="Power Draw"
               value={Math.round(gpu.sensors.power)}
               unit="W"
+              onClick={() => setSelectedMetric('power')}
             />
 
             {/* Fan Speed (if available) */}
@@ -182,6 +196,7 @@ export function MonitorPanel() {
                 label="Fan Speed"
                 value={gpu.sensors.fanSpeed}
                 unit="RPM"
+                onClick={() => setSelectedMetric('fan')}
               />
             )}
 
@@ -211,6 +226,15 @@ export function MonitorPanel() {
           </div>
         )}
       </div>
+
+      {/* Chart Popup */}
+      {selectedMetric && (
+        <ChartPopup
+          metric={selectedMetric}
+          history={history}
+          onClose={() => setSelectedMetric(null)}
+        />
+      )}
     </div>
   );
 }
