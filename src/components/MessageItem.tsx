@@ -1,4 +1,4 @@
-import { User, Bot, Copy, Check, RefreshCw, ChevronDown, Code } from 'lucide-react';
+import { User, Bot, Copy, Check, RefreshCw, ChevronDown, Code, Timer, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { Message } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -134,6 +134,35 @@ export function MessageItem({ message, isLast, onRegenerate, isGenerating }: Mes
               )
             )}
           </div>
+
+          {/* Response Metrics */}
+          {!isUser && message.metrics && !isStreaming && (
+            <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+              <div className="flex items-center gap-1" title="Prompt / Completion / Total Tokens">
+                <span className="font-medium">{message.metrics.promptTokens}</span>
+                <span className="text-zinc-400">/</span>
+                <span className="font-medium">{message.metrics.completionTokens}</span>
+                <span className="text-zinc-400">/</span>
+                <span className="font-medium">{message.metrics.totalTokens}</span>
+                <span>tokens</span>
+              </div>
+              <div className="flex items-center gap-1" title="Generation Speed">
+                <Zap size={12} />
+                <span className="font-medium">{message.metrics.tokensPerSecond}</span>
+                <span>tok/s</span>
+              </div>
+              <div className="flex items-center gap-1" title="Total Duration">
+                <Timer size={12} />
+                <span className="font-medium">{(message.metrics.durationMs / 1000).toFixed(1)}</span>
+                <span>s</span>
+              </div>
+              <div className="flex items-center gap-1" title="Time to First Token">
+                <span className="text-zinc-400 dark:text-zinc-500">TTFT:</span>
+                <span className="font-medium">{message.metrics.firstTokenLatencyMs}</span>
+                <span>ms</span>
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           {!isUser && message.content && (

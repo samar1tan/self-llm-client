@@ -4,6 +4,7 @@ export interface StreamCallbacks {
   onToken: (token: string) => void;
   onReasoning?: (reasoning: string) => void;
   onRequestInfo?: (info: HttpRequestInfo) => void;
+  onUsage?: (usage: { promptTokens: number; completionTokens: number; totalTokens: number }) => void;
   onComplete: () => void;
   onError: (error: ApiError) => void;
 }
@@ -53,6 +54,7 @@ export async function streamChatCompletion(
       model,
       messages: apiMessages,
       stream: true,
+      stream_options: { include_usage: true },
       temperature,
       max_tokens: maxTokens,
     };
@@ -112,6 +114,14 @@ export async function streamChatCompletion(
 
         try {
           const chunk: ChatCompletionChunk = JSON.parse(data);
+          // Handle usage data (sent in final chunk with stream_options.include_usage)
+          if (chunk.usage && callbacks.onUsage) {
+            callbacks.onUsage({
+              promptTokens: chunk.usage.prompt_tokens,
+              completionTokens: chunk.usage.completion_tokens,
+              totalTokens: chunk.usage.total_tokens,
+            });
+          }
           const delta = chunk.choices[0]?.delta;
           if (delta?.reasoning && callbacks.onReasoning) {
             callbacks.onReasoning(delta.reasoning);

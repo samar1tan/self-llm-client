@@ -6,12 +6,22 @@ export interface HttpRequestInfo {
   timestamp: number;
 }
 
+export interface MessageMetrics {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  durationMs: number;
+  tokensPerSecond: number;
+  firstTokenLatencyMs: number;
+}
+
 export interface Message {
   id: string;
   role: 'system' | 'user' | 'assistant';
   content: string;
   reasoning?: string;
   httpRequest?: HttpRequestInfo;
+  metrics?: MessageMetrics;
   timestamp: number;
 }
 
@@ -53,6 +63,11 @@ export interface ChatCompletionChunk {
     };
     finish_reason: string | null;
   }[];
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
 
 export interface ApiError {
