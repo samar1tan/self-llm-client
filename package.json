@@ -1,5 +1,5 @@
 {
-  "name": "vllm-chat-client",
+  "name": "self-llm-client",
   "private": true,
   "version": "1.0.0",
   "type": "module",

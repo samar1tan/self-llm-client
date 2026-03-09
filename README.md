@@ -1,6 +1,6 @@
-# vLLM Chat Client
+# Self LLM
 
-A lightweight, modern, ChatGPT-like web client for local vLLM deployments.
+A lightweight, modern, ChatGPT-like web client for local LLM deployments. Works with any OpenAI-compatible backend (vLLM, Ollama, LM Studio, text-generation-webui, etc.).
 
 ![React](https://img.shields.io/badge/React-18-61dafb?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)
@@ -40,21 +40,38 @@ Then open [http://localhost:5173](http://localhost:5173)
 ## Configuration
 
 1. Click the **Settings** icon (or press `Ctrl+,`)
-2. Enter your vLLM endpoint (default: `http://localhost:8000`)
+2. Enter your API endpoint:
+   - **vLLM**: `http://localhost:8000`
+   - **Ollama**: `http://localhost:11434`
+   - **LM Studio**: `http://localhost:1234`
 3. Select a model from the dropdown
 4. Start chatting!
 
-## vLLM Setup
+## Backend Setup
 
-Make sure your vLLM server is running with the OpenAI-compatible API:
+This client works with any OpenAI-compatible API. Example backends:
+
+### vLLM
 
 ```bash
-# Example vLLM server startup
 python -m vllm.entrypoints.openai.api_server \
   --model your-model-name \
   --host 0.0.0.0 \
   --port 8000
 ```
+
+### Ollama
+
+```bash
+# Ollama serves OpenAI-compatible API by default
+ollama serve
+```
+
+### LM Studio
+
+1. Download a model
+2. Go to "Local Server" tab
+3. Start the server (default port: 1234)
 
 The client uses these endpoints:
 - `GET /v1/models` - List available models
@@ -82,7 +99,7 @@ src/
 │   ├── settingsStore.ts # Settings state
 │   └── monitorStore.ts  # GPU monitor state + history
 ├── services/
-│   ├── api.ts           # vLLM API client with streaming
+│   ├── api.ts           # LLM API client with streaming
 │   └── monitor.ts       # GPU monitoring service + polling
 ├── types/
 │   └── index.ts         # TypeScript interfaces
@@ -110,10 +127,10 @@ The project follows a layered architecture with clear separation of concerns:
 │  chatStore | settingsStore | monitorStore   │
 ├─────────────────────────────────────────────┤
 │  Service Layer                              │
-│  api.ts (vLLM) | monitor.ts (GPU)           │
+│  api.ts (LLM) | monitor.ts (GPU)           │
 ├─────────────────────────────────────────────┤
 │  External APIs                              │
-│  vLLM Server | GPU Monitor Server           │
+│  LLM Server | GPU Monitor Server           │
 └─────────────────────────────────────────────┘
 ```
 

@@ -36,8 +36,30 @@ interface MonitorState {
   reset: () => void;
 }
 
-const MONITOR_SETTINGS_KEY = 'vllm-monitor-settings';
-const MONITOR_PANEL_KEY = 'vllm-monitor-panel-open';
+const MONITOR_SETTINGS_KEY = 'self-llm-monitor-settings';
+const MONITOR_PANEL_KEY = 'self-llm-monitor-panel-open';
+
+// Migration from old keys (one-time)
+const OLD_SETTINGS_KEY = 'vllm-monitor-settings';
+const OLD_PANEL_KEY = 'vllm-monitor-panel-open';
+
+function migrateOldMonitorKeys(): void {
+  try {
+    const oldSettings = localStorage.getItem(OLD_SETTINGS_KEY);
+    if (oldSettings && !localStorage.getItem(MONITOR_SETTINGS_KEY)) {
+      localStorage.setItem(MONITOR_SETTINGS_KEY, oldSettings);
+      localStorage.removeItem(OLD_SETTINGS_KEY);
+    }
+    const oldPanel = localStorage.getItem(OLD_PANEL_KEY);
+    if (oldPanel && !localStorage.getItem(MONITOR_PANEL_KEY)) {
+      localStorage.setItem(MONITOR_PANEL_KEY, oldPanel);
+      localStorage.removeItem(OLD_PANEL_KEY);
+    }
+  } catch {
+    // Ignore migration errors
+  }
+}
+migrateOldMonitorKeys();
 
 function loadSettings(): MonitorSettings {
   try {

@@ -98,7 +98,7 @@ export function MessageList({ messages, onRegenerate, isGenerating }: MessageLis
     return (
       <div className="flex-1 flex items-center justify-center text-zinc-500 dark:text-zinc-400">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">vLLM Chat</h2>
+          <h2 className="text-2xl font-semibold mb-2">Self LLM</h2>
           <p className="text-sm">Start a conversation with your local LLM</p>
         </div>
       </div>

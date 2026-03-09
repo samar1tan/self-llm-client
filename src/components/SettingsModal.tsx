@@ -107,7 +107,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {/* Endpoint */}
           <div>
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              vLLM Endpoint
+              API Endpoint
             </label>
             <div className="flex gap-2">
               <div className="flex-1 relative">
