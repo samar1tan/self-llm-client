@@ -2,6 +2,7 @@ export interface Message {
   id: string;
   role: 'system' | 'user' | 'assistant';
   content: string;
+  reasoning?: string;
   timestamp: number;
 }
 
@@ -39,6 +40,7 @@ export interface ChatCompletionChunk {
     delta: {
       role?: string;
       content?: string;
+      reasoning?: string;
     };
     finish_reason: string | null;
   }[];

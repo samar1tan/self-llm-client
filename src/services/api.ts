@@ -2,6 +2,7 @@ import { Message, Model, ChatCompletionChunk, ApiError } from '../types';
 
 export interface StreamCallbacks {
   onToken: (token: string) => void;
+  onReasoning?: (reasoning: string) => void;
   onComplete: () => void;
   onError: (error: ApiError) => void;
 }
@@ -97,9 +98,12 @@ export async function streamChatCompletion(
 
         try {
           const chunk: ChatCompletionChunk = JSON.parse(data);
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            callbacks.onToken(content);
+          const delta = chunk.choices[0]?.delta;
+          if (delta?.reasoning && callbacks.onReasoning) {
+            callbacks.onReasoning(delta.reasoning);
+          }
+          if (delta?.content) {
+            callbacks.onToken(delta.content);
           }
         } catch {
           // Skip invalid JSON

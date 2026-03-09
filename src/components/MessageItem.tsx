@@ -1,4 +1,4 @@
-import { User, Bot, Copy, Check, RefreshCw } from 'lucide-react';
+import { User, Bot, Copy, Check, RefreshCw, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { Message } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -12,7 +12,9 @@ interface MessageItemProps {
 
 export function MessageItem({ message, isLast, onRegenerate, isGenerating }: MessageItemProps) {
   const [copied, setCopied] = useState(false);
+  const [reasoningExpanded, setReasoningExpanded] = useState(false);
   const isUser = message.role === 'user';
+  const isStreaming = isGenerating && isLast && !isUser;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content);
@@ -46,11 +48,47 @@ export function MessageItem({ message, isLast, onRegenerate, isGenerating }: Mes
 
         {/* Content */}
         <div className="flex-1 min-w-0">
+          {/* Reasoning Block (collapsible) */}
+          {!isUser && message.reasoning && (
+            <details
+              className="mb-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
+              open={reasoningExpanded}
+              onToggle={(e) => setReasoningExpanded((e.target as HTMLDetailsElement).open)}
+            >
+              <summary className="px-3 py-2 cursor-pointer select-none text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors">
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${reasoningExpanded ? 'rotate-0' : '-rotate-90'}`}
+                />
+                <span>Thinking...</span>
+                {isStreaming && (
+                  <span className="ml-auto text-xs text-zinc-400">streaming</span>
+                )}
+              </summary>
+              <div className="px-3 py-2 text-sm border-t border-zinc-200 dark:border-zinc-700">
+                <div className="prose prose-sm prose-zinc dark:prose-invert max-w-none prose-p:text-zinc-600 dark:prose-p:text-zinc-400 prose-p:my-1 prose-pre:my-2 prose-code:text-zinc-600 dark:prose-code:text-zinc-400">
+                  <MarkdownRenderer content={message.reasoning} />
+                  {isStreaming && !message.content && (
+                    <span className="inline-block w-2 h-4 ml-0.5 bg-zinc-400 dark:bg-zinc-500 animate-cursor" />
+                  )}
+                </div>
+              </div>
+            </details>
+          )}
+
+          {/* Main Content */}
           <div className="prose prose-zinc dark:prose-invert max-w-none">
             {message.content ? (
-              <MarkdownRenderer content={message.content} />
+              <>
+                <MarkdownRenderer content={message.content} />
+                {isStreaming && (
+                  <span className="inline-block w-2 h-5 ml-0.5 bg-zinc-400 dark:bg-zinc-500 animate-cursor" />
+                )}
+              </>
             ) : (
-              <span className="inline-block w-2 h-5 bg-zinc-400 dark:bg-zinc-500 animate-pulse" />
+              !message.reasoning && (
+                <span className="inline-block w-2 h-5 bg-zinc-400 dark:bg-zinc-500 animate-pulse" />
+              )
             )}
           </div>
 

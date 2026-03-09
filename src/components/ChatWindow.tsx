@@ -18,6 +18,7 @@ export function ChatWindow({ onError }: ChatWindowProps) {
     createChat,
     addMessage,
     appendToMessage,
+    appendReasoningToMessage,
     deleteMessage,
     setGenerating,
     stopGeneration,
@@ -62,6 +63,9 @@ export function ChatWindow({ onError }: ChatWindowProps) {
             onToken: (token) => {
               appendToMessage(chatId!, assistantMsgId, token);
             },
+            onReasoning: (reasoning) => {
+              appendReasoningToMessage(chatId!, assistantMsgId, reasoning);
+            },
             onComplete: () => {
               setGenerating(false, null);
               // Save final state to storage
@@ -88,6 +92,7 @@ export function ChatWindow({ onError }: ChatWindowProps) {
       createChat,
       addMessage,
       appendToMessage,
+      appendReasoningToMessage,
       deleteMessage,
       setGenerating,
       onError,

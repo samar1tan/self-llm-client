@@ -20,6 +20,7 @@ interface ChatState {
   addMessage: (chatId: string, role: Message['role'], content: string) => string;
   updateMessage: (chatId: string, messageId: string, content: string) => void;
   appendToMessage: (chatId: string, messageId: string, content: string) => void;
+  appendReasoningToMessage: (chatId: string, messageId: string, reasoning: string) => void;
   deleteMessage: (chatId: string, messageId: string) => void;
 
   // Generation control
@@ -120,6 +121,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (c.id !== chatId) return c;
       const messages = c.messages.map((m) =>
         m.id === messageId ? { ...m, content: m.content + content } : m
+      );
+      return { ...c, messages, updatedAt: Date.now() };
+    });
+    // Don't save to storage on every append for performance
+    set({ chats });
+  },
+
+  appendReasoningToMessage: (chatId, messageId, reasoning) => {
+    const chats = get().chats.map((c) => {
+      if (c.id !== chatId) return c;
+      const messages = c.messages.map((m) =>
+        m.id === messageId ? { ...m, reasoning: (m.reasoning || '') + reasoning } : m
       );
       return { ...c, messages, updatedAt: Date.now() };
     });
