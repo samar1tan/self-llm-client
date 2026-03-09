@@ -106,10 +106,7 @@ export function MessageItem({ message, isLast, onRegenerate, isGenerating }: Mes
                   size={16}
                   className={`transition-transform ${reasoningExpanded ? 'rotate-0' : '-rotate-90'}`}
                 />
-                <span>Thinking...</span>
-                {isStreaming && (
-                  <span className="ml-auto text-xs text-zinc-400">streaming</span>
-                )}
+                <span>{isStreaming && !message.content ? 'Thinking...' : 'Thought'}</span>
               </summary>
               <div className="px-3 py-2 text-sm border-t border-zinc-200 dark:border-zinc-700">
                 <div className="prose prose-sm prose-zinc dark:prose-invert max-w-none prose-p:text-zinc-600 dark:prose-p:text-zinc-400 prose-p:my-1 prose-pre:my-2 prose-code:text-zinc-600 dark:prose-code:text-zinc-400">
