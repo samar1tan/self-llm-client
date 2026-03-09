@@ -19,6 +19,7 @@ export function ChatWindow({ onError }: ChatWindowProps) {
     addMessage,
     appendToMessage,
     appendReasoningToMessage,
+    setMessageHttpRequest,
     deleteMessage,
     setGenerating,
     stopGeneration,
@@ -55,7 +56,7 @@ export function ChatWindow({ onError }: ChatWindowProps) {
         await streamChatCompletion(
           settings.endpoint,
           settings.model,
-          chat.messages.concat({ id: 'temp', role: 'user', content, timestamp: Date.now() }),
+          chat.messages,
           chat.systemPrompt,
           settings.temperature,
           settings.maxTokens,
@@ -65,6 +66,9 @@ export function ChatWindow({ onError }: ChatWindowProps) {
             },
             onReasoning: (reasoning) => {
               appendReasoningToMessage(chatId!, assistantMsgId, reasoning);
+            },
+            onRequestInfo: (info) => {
+              setMessageHttpRequest(chatId!, assistantMsgId, info);
             },
             onComplete: () => {
               setGenerating(false, null);
@@ -93,6 +97,7 @@ export function ChatWindow({ onError }: ChatWindowProps) {
       addMessage,
       appendToMessage,
       appendReasoningToMessage,
+      setMessageHttpRequest,
       deleteMessage,
       setGenerating,
       onError,

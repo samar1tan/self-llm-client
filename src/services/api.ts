@@ -1,8 +1,9 @@
-import { Message, Model, ChatCompletionChunk, ApiError } from '../types';
+import { Message, Model, ChatCompletionChunk, ApiError, HttpRequestInfo } from '../types';
 
 export interface StreamCallbacks {
   onToken: (token: string) => void;
   onReasoning?: (reasoning: string) => void;
+  onRequestInfo?: (info: HttpRequestInfo) => void;
   onComplete: () => void;
   onError: (error: ApiError) => void;
 }
@@ -46,18 +47,31 @@ export async function streamChatCompletion(
   }
 
   try {
-    const response = await fetch(`${endpoint}/v1/chat/completions`, {
+    const url = `${endpoint}/v1/chat/completions`;
+    const headers = { 'Content-Type': 'application/json' };
+    const requestBody = {
+      model,
+      messages: apiMessages,
+      stream: true,
+      temperature,
+      max_tokens: maxTokens,
+    };
+
+    // Emit request info before making the call
+    if (callbacks.onRequestInfo) {
+      callbacks.onRequestInfo({
+        method: 'POST',
+        url,
+        headers,
+        body: requestBody,
+        timestamp: Date.now(),
+      });
+    }
+
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages: apiMessages,
-        stream: true,
-        temperature,
-        max_tokens: maxTokens,
-      }),
+      headers,
+      body: JSON.stringify(requestBody),
       signal,
     });
 

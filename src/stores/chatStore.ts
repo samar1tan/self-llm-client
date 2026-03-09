@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import { Chat, Message } from '../types';
+import { Chat, Message, HttpRequestInfo } from '../types';
 import { storage } from '../utils/storage';
 
 interface ChatState {
@@ -21,6 +21,7 @@ interface ChatState {
   updateMessage: (chatId: string, messageId: string, content: string) => void;
   appendToMessage: (chatId: string, messageId: string, content: string) => void;
   appendReasoningToMessage: (chatId: string, messageId: string, reasoning: string) => void;
+  setMessageHttpRequest: (chatId: string, messageId: string, httpRequest: HttpRequestInfo) => void;
   deleteMessage: (chatId: string, messageId: string) => void;
 
   // Generation control
@@ -137,6 +138,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { ...c, messages, updatedAt: Date.now() };
     });
     // Don't save to storage on every append for performance
+    set({ chats });
+  },
+
+  setMessageHttpRequest: (chatId, messageId, httpRequest) => {
+    const chats = get().chats.map((c) => {
+      if (c.id !== chatId) return c;
+      const messages = c.messages.map((m) =>
+        m.id === messageId ? { ...m, httpRequest } : m
+      );
+      return { ...c, messages, updatedAt: Date.now() };
+    });
+    // Save immediately since this is called once per request
+    storage.saveChats(chats);
     set({ chats });
   },
 

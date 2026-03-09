@@ -1,4 +1,4 @@
-import { User, Bot, Copy, Check, RefreshCw, ChevronDown } from 'lucide-react';
+import { User, Bot, Copy, Check, RefreshCw, ChevronDown, Code } from 'lucide-react';
 import { useState } from 'react';
 import { Message } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -13,6 +13,7 @@ interface MessageItemProps {
 export function MessageItem({ message, isLast, onRegenerate, isGenerating }: MessageItemProps) {
   const [copied, setCopied] = useState(false);
   const [reasoningExpanded, setReasoningExpanded] = useState(false);
+  const [httpRequestExpanded, setHttpRequestExpanded] = useState(false);
   const isUser = message.role === 'user';
   const isStreaming = isGenerating && isLast && !isUser;
 
@@ -48,6 +49,51 @@ export function MessageItem({ message, isLast, onRegenerate, isGenerating }: Mes
 
         {/* Content */}
         <div className="flex-1 min-w-0">
+          {/* HTTP Request Block (collapsible) - shown first */}
+          {!isUser && message.httpRequest && (
+            <details
+              className="mb-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700"
+              open={httpRequestExpanded}
+              onToggle={(e) => setHttpRequestExpanded((e.target as HTMLDetailsElement).open)}
+            >
+              <summary className="px-3 py-2 cursor-pointer select-none text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors">
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${httpRequestExpanded ? 'rotate-0' : '-rotate-90'}`}
+                />
+                <Code size={14} />
+                <span>HTTP Request</span>
+                <span className="ml-auto text-xs font-mono text-zinc-500">
+                  {message.httpRequest.method} {new URL(message.httpRequest.url).pathname}
+                </span>
+              </summary>
+              <div className="px-3 py-2 text-sm border-t border-zinc-200 dark:border-zinc-700 font-mono">
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-zinc-500 dark:text-zinc-400">URL: </span>
+                    <span className="text-zinc-700 dark:text-zinc-300 break-all">{message.httpRequest.url}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 dark:text-zinc-400">Method: </span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{message.httpRequest.method}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 dark:text-zinc-400">Headers:</span>
+                    <pre className="mt-1 p-2 bg-zinc-200 dark:bg-zinc-900 rounded text-xs overflow-x-auto">
+                      {JSON.stringify(message.httpRequest.headers, null, 2)}
+                    </pre>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 dark:text-zinc-400">Body:</span>
+                    <pre className="mt-1 p-2 bg-zinc-200 dark:bg-zinc-900 rounded text-xs overflow-x-auto max-h-64 overflow-y-auto">
+                      {JSON.stringify(message.httpRequest.body, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </details>
+          )}
+
           {/* Reasoning Block (collapsible) */}
           {!isUser && message.reasoning && (
             <details

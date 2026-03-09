@@ -1,8 +1,17 @@
+export interface HttpRequestInfo {
+  method: string;
+  url: string;
+  headers: Record<string, string>;
+  body: object;
+  timestamp: number;
+}
+
 export interface Message {
   id: string;
   role: 'system' | 'user' | 'assistant';
   content: string;
   reasoning?: string;
+  httpRequest?: HttpRequestInfo;
   timestamp: number;
 }
 
