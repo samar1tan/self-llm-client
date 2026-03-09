@@ -69,12 +69,16 @@ src/
 │   ├── InputArea.tsx    # User input + send/stop
 │   ├── MarkdownRenderer.tsx  # Markdown rendering
 │   ├── CodeBlock.tsx    # Code with copy button
-│   └── SettingsModal.tsx     # Settings panel
+│   ├── SettingsModal.tsx     # Settings panel
+│   ├── MonitorPanel.tsx      # GPU monitoring panel
+│   └── StatusBar.tsx         # Bottom status bar
 ├── stores/              # Zustand state management
 │   ├── chatStore.ts     # Chat & message state
-│   └── settingsStore.ts # Settings state
+│   ├── settingsStore.ts # Settings state
+│   └── monitorStore.ts  # GPU monitor state
 ├── services/
-│   └── api.ts           # vLLM API client with streaming
+│   ├── api.ts           # vLLM API client with streaming
+│   └── monitor.ts       # GPU monitoring service
 ├── types/
 │   └── index.ts         # TypeScript interfaces
 ├── utils/
@@ -83,7 +87,42 @@ src/
 ├── App.tsx              # Root component
 ├── main.tsx             # Entry point
 └── index.css            # Tailwind + custom styles
+
+tools/
+└── gpu-monitor-server.py # GPU metrics HTTP proxy
 ```
+
+## Architecture
+
+The project follows a layered architecture with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────┐
+│  UI Layer (React Components)                │
+│  Sidebar | ChatWindow | MonitorPanel | ...  │
+├─────────────────────────────────────────────┤
+│  State Layer (Zustand)                      │
+│  chatStore | settingsStore | monitorStore   │
+├─────────────────────────────────────────────┤
+│  Service Layer                              │
+│  api.ts (vLLM) | monitor.ts (GPU)           │
+├─────────────────────────────────────────────┤
+│  External APIs                              │
+│  vLLM Server | GPU Monitor Server           │
+└─────────────────────────────────────────────┘
+```
+
+### Code Map
+
+A detailed project codemap is available at:
+- **[mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md](/home/jd/self-llm-client/mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md)**
+
+The codemap includes:
+- Complete module breakdown with file references
+- Architecture diagrams (Mermaid)
+- Data flow documentation
+- API contracts
+- Extension points and hotspots
 
 ## Tech Stack
 
