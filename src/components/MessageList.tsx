@@ -14,13 +14,32 @@ export function MessageList({ messages, onRegenerate, isGenerating }: MessageLis
   const bottomRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
+  
+  // Track if messages were ever shown (prevents empty state flash-back)
+  const hadMessagesRef = useRef(false);
+  // Track message count for auto-scroll (not content changes)
+  const prevMessageCountRef = useRef(0);
+  // RAF handle for throttled scroll
+  const rafRef = useRef<number | null>(null);
 
   // Filter out system messages for display
   const displayMessages = messages.filter((m) => m.role !== 'system');
+  
+  // Update hadMessages ref
+  if (displayMessages.length > 0) {
+    hadMessagesRef.current = true;
+  }
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    bottomRef.current?.scrollIntoView({ behavior });
-    setUserScrolled(false);
+    // Use RAF to ensure smooth scrolling synced with paint
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    rafRef.current = requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior });
+      setUserScrolled(false);
+      rafRef.current = null;
+    });
   }, []);
 
   // Handle scroll events to show/hide scroll-to-bottom button
@@ -40,14 +59,42 @@ export function MessageList({ messages, onRegenerate, isGenerating }: MessageLis
     }
   }, []);
 
-  // Auto-scroll to bottom on new messages, unless user scrolled up
+  // Auto-scroll to bottom only when new messages are added (not on content updates)
   useEffect(() => {
-    if (!userScrolled) {
+    const currentCount = displayMessages.length;
+    const prevCount = prevMessageCountRef.current;
+    
+    // Only auto-scroll when message count increases
+    if (currentCount > prevCount && !userScrolled) {
       scrollToBottom('smooth');
     }
-  }, [messages, userScrolled, scrollToBottom]);
+    
+    prevMessageCountRef.current = currentCount;
+  }, [displayMessages.length, userScrolled, scrollToBottom]);
 
-  if (displayMessages.length === 0) {
+  // Auto-scroll during streaming for the last message (throttled)
+  useEffect(() => {
+    if (!isGenerating || userScrolled) return;
+    
+    // Throttle scroll during streaming to every 100ms max
+    const timeoutId = setTimeout(() => {
+      scrollToBottom('smooth');
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [messages, isGenerating, userScrolled, scrollToBottom]);
+
+  // Cleanup RAF on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  // Show empty state only on initial load, not on flash-back
+  if (displayMessages.length === 0 && !hadMessagesRef.current) {
     return (
       <div className="flex-1 flex items-center justify-center text-zinc-500 dark:text-zinc-400">
         <div className="text-center">
@@ -65,7 +112,7 @@ export function MessageList({ messages, onRegenerate, isGenerating }: MessageLis
       onScroll={handleScroll}
       style={{ contain: 'layout style' }}
     >
-      <div style={{ contain: 'content' }}>
+      <div>
         {displayMessages.map((message, index) => (
           <MessageItem
             key={message.id}
@@ -78,11 +125,11 @@ export function MessageList({ messages, onRegenerate, isGenerating }: MessageLis
         <div ref={bottomRef} className="h-4" />
       </div>
       
-      {/* Scroll to bottom button - sticky to bottom of scroll container */}
+      {/* Scroll to bottom button - absolute positioned within container */}
       {showScrollButton && (
         <button
           onClick={() => scrollToBottom('smooth')}
-          className="sticky bottom-6 float-right mr-6 p-3 bg-zinc-700 dark:bg-zinc-600 text-white rounded-full shadow-lg hover:bg-zinc-600 dark:hover:bg-zinc-500 transition-all z-50 animate-fade-in"
+          className="absolute bottom-6 right-6 p-3 bg-zinc-700 dark:bg-zinc-600 text-white rounded-full shadow-lg hover:bg-zinc-600 dark:hover:bg-zinc-500 transition-all z-50 animate-fade-in"
           title="Scroll to bottom"
         >
           <ArrowDown size={20} />
