@@ -91,8 +91,8 @@ graph TB
 
 | File | Purpose |
 |------|---------|
-| [main.tsx](/home/jd/self-llm-client/src/main.tsx) | React application entry point |
-| [App.tsx](/home/jd/self-llm-client/src/App.tsx) | Root component, theme management, keyboard shortcuts, error handling |
+| [main.tsx](src/main.tsx) | React application entry point |
+| [App.tsx](src/App.tsx) | Root component, theme management, keyboard shortcuts, error handling |
 
 **App.tsx Key Responsibilities:**
 - Theme switching (light/dark/system) with system preference detection
@@ -105,25 +105,25 @@ graph TB
 ### 3.2 Components Layer
 
 | Component | File | Key Props | Purpose |
-|-----------|------|-----------|---------||
-| **Sidebar** | [Sidebar.tsx](/home/jd/self-llm-client/src/components/Sidebar.tsx) | `onOpenSettings` | Chat list navigation, create/rename/delete chats |
-| **ChatWindow** | [ChatWindow.tsx](/home/jd/self-llm-client/src/components/ChatWindow.tsx) | `onError` | Main chat orchestration, message sending, streaming |
-| **MessageList** | [MessageList.tsx](/home/jd/self-llm-client/src/components/MessageList.tsx) | `messages`, `onRegenerate`, `isGenerating` | Scrollable message container with smart auto-scroll |
-| **MessageItem** | [MessageItem.tsx](/home/jd/self-llm-client/src/components/MessageItem.tsx) | `message`, `isLast`, `onRegenerate`, `isGenerating` | Single message with actions, reasoning block, HTTP inspector |
-| **InputArea** | [InputArea.tsx](/home/jd/self-llm-client/src/components/InputArea.tsx) | `onSend`, `onStop`, `isGenerating`, `disabled` | User input with send/stop buttons |
-| **SettingsModal** | [SettingsModal.tsx](/home/jd/self-llm-client/src/components/SettingsModal.tsx) | `isOpen`, `onClose` | Settings panel (endpoint, model, temperature, GPU monitor) |
-| **MonitorPanel** | [MonitorPanel.tsx](/home/jd/self-llm-client/src/components/MonitorPanel.tsx) | - | GPU metrics dashboard with clickable metric cards |
-| **StatusBar** | [StatusBar.tsx](/home/jd/self-llm-client/src/components/StatusBar.tsx) | - | Bottom status bar with GPU stats, manages polling service |
-| **MetricChart** | [MetricChart.tsx](/home/jd/self-llm-client/src/components/MetricChart.tsx) | `data`, `label`, `unit`, `color`, `minValue`, `maxValue`, `height` | SVG line chart for time-series metrics |
-| **ChartPopup** | [ChartPopup.tsx](/home/jd/self-llm-client/src/components/ChartPopup.tsx) | `metric`, `history`, `onClose` | Modal popup for detailed metric charts with min/avg/max stats |
-| **MarkdownRenderer** | [MarkdownRenderer.tsx](/home/jd/self-llm-client/src/components/MarkdownRenderer.tsx) | `content` | Markdown rendering with GFM support |
-| **CodeBlock** | [CodeBlock.tsx](/home/jd/self-llm-client/src/components/CodeBlock.tsx) | `children`, `className` | Syntax-highlighted code with copy button |
+|-----------|------|-----------|---------|
+| **Sidebar** | [Sidebar.tsx](src/components/Sidebar.tsx) | `onOpenSettings` | Chat list navigation, create/rename/delete chats |
+| **ChatWindow** | [ChatWindow.tsx](src/components/ChatWindow.tsx) | `onError` | Main chat orchestration, message sending, streaming |
+| **MessageList** | [MessageList.tsx](src/components/MessageList.tsx) | `messages`, `onRegenerate`, `isGenerating` | Scrollable message container with smart auto-scroll |
+| **MessageItem** | [MessageItem.tsx](src/components/MessageItem.tsx) | `message`, `isLast`, `onRegenerate`, `isGenerating` | Single message with actions, reasoning block, HTTP inspector |
+| **InputArea** | [InputArea.tsx](src/components/InputArea.tsx) | `onSend`, `onStop`, `isGenerating`, `disabled` | User input with send/stop buttons |
+| **SettingsModal** | [SettingsModal.tsx](src/components/SettingsModal.tsx) | `isOpen`, `onClose` | Settings panel (endpoint, model, temperature, GPU monitor) |
+| **MonitorPanel** | [MonitorPanel.tsx](src/components/MonitorPanel.tsx) | - | GPU metrics dashboard with clickable metric cards |
+| **StatusBar** | [StatusBar.tsx](src/components/StatusBar.tsx) | - | Bottom status bar with GPU stats, manages polling service |
+| **MetricChart** | [MetricChart.tsx](src/components/MetricChart.tsx) | `data`, `label`, `unit`, `color`, `minValue`, `maxValue`, `height` | SVG line chart for time-series metrics |
+| **ChartPopup** | [ChartPopup.tsx](src/components/ChartPopup.tsx) | `metric`, `history`, `onClose` | Modal popup for detailed metric charts with min/avg/max stats |
+| **MarkdownRenderer** | [MarkdownRenderer.tsx](src/components/MarkdownRenderer.tsx) | `content` | Markdown rendering with GFM support |
+| **CodeBlock** | [CodeBlock.tsx](src/components/CodeBlock.tsx) | `children`, `className` | Syntax-highlighted code with copy button |
 
 ---
 
 ### 3.3 State Management (Zustand Stores)
 
-#### ChatStore ([chatStore.ts](/home/jd/self-llm-client/src/stores/chatStore.ts))
+#### ChatStore ([chatStore.ts](src/stores/chatStore.ts))
 
 ```typescript
 interface ChatState {
@@ -153,7 +153,7 @@ interface ChatState {
 - Streaming append operations don't save to storage (performance)
 - Final state saved on completion/error
 
-#### SettingsStore ([settingsStore.ts](/home/jd/self-llm-client/src/stores/settingsStore.ts))
+#### SettingsStore ([settingsStore.ts](src/stores/settingsStore.ts))
 
 ```typescript
 interface SettingsState {
@@ -170,7 +170,7 @@ interface Settings {
 }
 ```
 
-#### MonitorStore ([monitorStore.ts](/home/jd/self-llm-client/src/stores/monitorStore.ts))
+#### MonitorStore ([monitorStore.ts](src/stores/monitorStore.ts))
 
 ```typescript
 interface MonitorState {
@@ -203,7 +203,7 @@ interface MonitorState {
 
 ### 3.4 Service Layer
 
-#### API Service ([api.ts](/home/jd/self-llm-client/src/services/api.ts))
+#### API Service ([api.ts](src/services/api.ts))
 
 | Function | Purpose |
 |----------|---------|
@@ -220,10 +220,10 @@ interface MonitorState {
 6. Call `onToken` / `onReasoning` callbacks for each chunk
 7. Signal completion via `onComplete` or `onError`
 
-#### Monitor Service ([monitor.ts](/home/jd/self-llm-client/src/services/monitor.ts))
+#### Monitor Service ([monitor.ts](src/services/monitor.ts))
 
 | Function/Class | Purpose |
-|----------------|---------||
+|----------------|---------|
 | `fetchGpuMetrics(endpoint)` | GET /gpu-stats, parses amdgpu_top JSON to GpuMetrics |
 | `checkMonitorHealth(endpoint)` | GET /health with 2s timeout |
 | `GpuMonitorService` | Polling manager class with lifecycle control |
@@ -236,7 +236,7 @@ interface MonitorState {
 
 ---
 
-### 3.5 Type Definitions ([types/index.ts](/home/jd/self-llm-client/src/types/index.ts))
+### 3.5 Type Definitions ([types/index.ts](src/types/index.ts))
 
 ```typescript
 // Core domain types
@@ -266,8 +266,8 @@ MetricHistoryPoint { timestamp, gfx, memory, vram, vramTotal, temp, power, fan? 
 
 | File | Purpose |
 |------|---------|
-| [storage.ts](/home/jd/self-llm-client/src/utils/storage.ts) | LocalStorage persistence for chats |
-| [export.ts](/home/jd/self-llm-client/src/utils/export.ts) | Export chats to JSON/Markdown |
+| [storage.ts](src/utils/storage.ts) | LocalStorage persistence for chats |
+| [export.ts](src/utils/export.ts) | Export chats to JSON/Markdown |
 
 ---
 
@@ -275,7 +275,7 @@ MetricHistoryPoint { timestamp, gfx, memory, vram, vramTotal, temp, power, fan? 
 
 | File | Purpose |
 |------|---------|
-| [gpu-monitor-server.py](/home/jd/self-llm-client/tools/gpu-monitor-server.py) | Python HTTP proxy for amdgpu_top GPU metrics |
+| [gpu-monitor-server.py](tools/gpu-monitor-server.py) | Python HTTP proxy for amdgpu_top GPU metrics |
 
 **Endpoints:**
 - `GET /gpu-stats` - Returns amdgpu_top JSON
@@ -316,7 +316,7 @@ Tailwind dark: variants apply
 ## 5. Key Dependencies
 
 | Package | Version | Purpose |
-|---------|---------|---------||
+|---------|---------|---------|
 | react, react-dom | ^18.3.1 | UI framework |
 | zustand | ^4.5.5 | State management |
 | react-markdown | ^9.0.1 | Markdown rendering |
@@ -408,7 +408,7 @@ tools/
 ## 8. Hotspots & Extension Points
 
 | Area | Extension Ideas |
-|------|-----------------||
+|------|-----------------|
 | MessageItem.tsx | Add message editing, reactions, threading |
 | api.ts | Add retry logic, request interceptors, caching |
 | chatStore.ts | Add conversation search, folders, tags |

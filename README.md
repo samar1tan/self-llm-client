@@ -120,7 +120,7 @@ The project follows a layered architecture with clear separation of concerns:
 ### Code Map
 
 A detailed project codemap is available at:
-- **[mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md](/home/jd/self-llm-client/mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md)**
+- **[mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md](mydocs/codemap/2026-03-09_18-30_vLLM-Chat-Client-Project-Map.md)**
 
 The codemap includes:
 - Complete module breakdown with file references
@@ -132,7 +132,7 @@ The codemap includes:
 ## Tech Stack
 
 | Layer | Technology | Version |
-|-------|------------|---------||
+|-------|------------|---------|
 | Build | Vite | 5.4.10 |
 | Framework | React | 18.3.1 |
 | Language | TypeScript | 5.6.3 |
