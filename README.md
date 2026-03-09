@@ -21,6 +21,9 @@ A lightweight, modern, ChatGPT-like web client for local vLLM deployments.
 - **Dark/Light/System Theme** - Automatic theme detection
 - **Keyboard Shortcuts** - `Ctrl+N` new chat, `Ctrl+,` settings
 - **LocalStorage Persistence** - Chat history survives refresh
+- **GPU Monitoring** - Real-time AMD GPU metrics with history charts
+- **HTTP Request Inspector** - View API request details per message
+- **Reasoning Support** - Collapsible thinking/reasoning blocks
 
 ## Quick Start
 
@@ -64,21 +67,23 @@ src/
 ├── components/          # React UI components
 │   ├── Sidebar.tsx      # Chat list navigation
 │   ├── ChatWindow.tsx   # Main chat orchestration
-│   ├── MessageList.tsx  # Messages container
+│   ├── MessageList.tsx  # Messages container with smart auto-scroll
 │   ├── MessageItem.tsx  # Single message with actions
 │   ├── InputArea.tsx    # User input + send/stop
 │   ├── MarkdownRenderer.tsx  # Markdown rendering
 │   ├── CodeBlock.tsx    # Code with copy button
 │   ├── SettingsModal.tsx     # Settings panel
-│   ├── MonitorPanel.tsx      # GPU monitoring panel
-│   └── StatusBar.tsx         # Bottom status bar
+│   ├── MonitorPanel.tsx      # GPU monitoring dashboard
+│   ├── StatusBar.tsx         # Bottom status bar
+│   ├── MetricChart.tsx       # SVG line chart for metrics
+│   └── ChartPopup.tsx        # Modal chart with stats
 ├── stores/              # Zustand state management
 │   ├── chatStore.ts     # Chat & message state
 │   ├── settingsStore.ts # Settings state
-│   └── monitorStore.ts  # GPU monitor state
+│   └── monitorStore.ts  # GPU monitor state + history
 ├── services/
 │   ├── api.ts           # vLLM API client with streaming
-│   └── monitor.ts       # GPU monitoring service
+│   └── monitor.ts       # GPU monitoring service + polling
 ├── types/
 │   └── index.ts         # TypeScript interfaces
 ├── utils/
@@ -126,15 +131,35 @@ The codemap includes:
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Build | Vite 5 |
-| Framework | React 18 |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS 3 |
-| State | Zustand |
-| Markdown | react-markdown + remark-gfm + rehype-highlight |
-| Icons | Lucide React |
+| Layer | Technology | Version |
+|-------|------------|---------||
+| Build | Vite | 5.4.10 |
+| Framework | React | 18.3.1 |
+| Language | TypeScript | 5.6.3 |
+| Styling | Tailwind CSS | 3.4.14 |
+| State | Zustand | 4.5.5 |
+| Markdown | react-markdown + remark-gfm + rehype-highlight | 9.0.1 / 4.0.0 / 7.0.0 |
+| Icons | Lucide React | 0.454.0 |
+
+## GPU Monitoring
+
+The client includes a built-in GPU monitoring panel for AMD GPUs:
+
+```bash
+# Start the GPU monitor server
+python3 tools/gpu-monitor-server.py
+```
+
+**Features:**
+- Real-time GPU utilization, VRAM, temperature, power, fan speed
+- 5-minute metric history with interactive charts
+- Click any metric card to view detailed chart with min/avg/max stats
+- Visibility-aware polling (pauses when tab is hidden)
+- Configurable polling interval (1-10 seconds)
+
+**Requirements:**
+- `amdgpu_top` installed (`cargo install amdgpu_top` or package manager)
+- Python 3.8+
 
 ## Scripts
 
